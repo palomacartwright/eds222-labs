@@ -1,1 +1,1 @@
-# eds222-labs
+# EDS 222: Statistics Labs
