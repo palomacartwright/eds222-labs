@@ -92,17 +92,24 @@ summary(lm(hwy ~ displ + year + displ:year, data = mpg))
 ```
 2. What does the intercept tell you, in words?  
 
-The intercept tells us that for no engine displacement, and without the impact of the year, the highway fuel efficiency for a car is 35.7922. 
+The intercept tells us that for a car in 1999 with no engine displacement, the highway fuel efficiency for the  car is 35.7922 miles per gallon. 
 
 3. What does the coefficient on `displ` tell you, in words? 
 
-The coefficient on `displ` tells us that with one a one unit increase in engine displacement, not including the impact of year or the combined impact of year and displacement, there will be a 3.7684 loss in highway fuel efficiency. 
+The coefficient on `displ` tells us that with one a one liter increase in engine displacement for a 1999 car, there will be a 3.7684 loss in highway fuel efficiency. 
 
 4. What does the coefficient estimate on the 2008 vintage indicator variable (`year2008`) tell you, in words? 
 
-
+For a 2008 car with a 0 liter engine, there will be a 0.3455 increase in highway fuel efficiency in mpg. 
 
 5. What does the coefficient on `displ:year2008` tell you, in words?^[Hint: This is tricky. Start by writing down the relationship between miles per gallon and engine size when the car vintage is 2008. Then write the same thing for car vintage 1999. Can you see what role this coefficient plays?]
+
+In a car in 2008 with a one liter increase in engine displacement, the highway fuel efficiency will become 35.7922 + (-3.7684) + 03445 + 0.3052. It is the difference in the slope. (this probably wrong)
+
+**Answer: The impact of engine size on highway miles per gallon is 0.3 mpg higher in 2008 cars than it is in 1999 cars. This coefficient is telling us how the relationship between miles per gallon and engine size _varies_ with vintage. Because the reference group is the 1999 vintage, this coefficient tells us the slope of the relationship between miles per gallon and engine size for the 2008 vintage _minus_ the same slope for the 1999 vintage.**
+
+**You can see this by looking at 2008 and 1999 vintages one at a time. The slope of the relationship between `hwy` and `displ` in 2008 is $\beta_1 displ  + \beta_3 \cdot displ \cdot 1 = (\beta_1 + \beta_3)\cdot displ$. In contrast, the slope of the relationship between `hwy` and `displ` in 1999 is $\beta_1 displ + \beta_3 \cdot displ \cdot 0 = \beta_1 displ$, so the difference in slopes is $\beta_3$.**
+
 
 ## Plotting an interaction model
 
@@ -115,7 +122,9 @@ As usual, `ggplot2` with `geom_smooth` plotting our regression line makes this e
 Let's give it a try:
 
 ```{r}
-
+ggplot(data = mpg, aes(y = hwy, x = displ, color = year)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
 ```
 
 Note that you could also plot the same thing using `augment()` as we did above, in combination with `geom_line()`. This gives you a bit more control over what is going on, since it's not obvious in the prior approach what regression exactly `geom_smooth()` is running. 
@@ -123,7 +132,11 @@ Note that you could also plot the same thing using `augment()` as we did above, 
 First, run the interaction model. Then, use `geom_line()` to plot the regression lines using the fitted values from `augment()`.
 
 ```{r}
- 
+mod_int <- lm(hwy ~ displ + year + displ:year, data = mpg)
+mpg %>% 
+  ggplot(aes(x = displ, y = hwy, color = year)) +
+  geom_point() +
+  geom_line(data = augment(mod_int), aes(y = .fitted, color = year)) 
 ```
 
 ## Adjusted R-squared
